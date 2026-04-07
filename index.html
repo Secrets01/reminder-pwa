@@ -3,18 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>PWA Напоминания</title>
     <meta name="theme-color" content="#4CAF50">
+    <title>PWA Напоминания - Рабочая версия</title>
+    
     <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%234CAF50'/%3E%3Ctext x='256' y='380' font-size='380' text-anchor='middle' fill='white'%3E🔔%3C/text%3E%3C/svg%3E">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Напоминания">
+    <meta name="mobile-web-app-capable" content="yes">
+    
     <style>
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
@@ -25,196 +33,677 @@
             margin: 0 auto;
             background: white;
             border-radius: 24px;
-            padding: 20px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         h1 {
-            font-size: 1.8rem;
-            color: #333;
-            margin-bottom: 20px;
-            text-align: center;
+            font-size: 1.5rem;
             display: flex;
             align-items: center;
-            justify-content: center;
             gap: 10px;
+        }
+
+        .btn-notification, .btn-install {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .btn-notification:hover, .btn-install:hover {
+            background: rgba(255,255,255,0.3);
         }
 
         .add-form {
+            padding: 20px;
+            background: #f9f9f9;
+            border-bottom: 1px solid #eee;
             display: flex;
-            flex-wrap: wrap;
             gap: 10px;
-            margin-bottom: 30px;
-        }
-
-        .add-form input, .add-form button {
-            padding: 12px;
-            font-size: 1rem;
-            border-radius: 12px;
-            border: 1px solid #ddd;
-            font-family: inherit;
+            flex-wrap: wrap;
         }
 
         #reminderText {
             flex: 2;
-            min-width: 150px;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        #reminderText:focus {
+            outline: none;
+            border-color: #4CAF50;
         }
 
         #reminderDateTime {
-            flex: 2;
-            min-width: 180px;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            cursor: pointer;
         }
 
         #addBtn {
             background: #4CAF50;
             color: white;
             border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
             cursor: pointer;
-            transition: 0.2s;
-            flex: 1;
+            font-size: 1rem;
             font-weight: bold;
+            transition: all 0.3s;
         }
 
         #addBtn:hover {
             background: #45a049;
-            transform: translateY(-2px);
+            transform: scale(1.02);
         }
 
-        h2 {
-            font-size: 1.4rem;
-            margin: 20px 0 15px;
-            color: #555;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 8px;
+        .filters {
+            padding: 15px 20px;
+            display: flex;
+            gap: 10px;
+            border-bottom: 1px solid #eee;
+            flex-wrap: wrap;
         }
 
-        #reminderList {
-            list-style: none;
-            max-height: 400px;
+        .filter-btn {
+            padding: 8px 20px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .filter-btn.active {
+            background: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+
+        .reminders-list {
+            padding: 20px;
+            min-height: 400px;
+            max-height: 500px;
             overflow-y: auto;
         }
 
         .reminder-item {
-            background: #f9f9f9;
+            background: white;
+            border: 1px solid #e0e0e0;
             border-radius: 16px;
-            padding: 12px 16px;
-            margin-bottom: 10px;
+            padding: 15px;
+            margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: 0.2s;
-            border-left: 5px solid #4CAF50;
-            animation: slideIn 0.3s ease;
+            transition: all 0.3s;
+            animation: fadeIn 0.3s ease;
         }
 
-        @keyframes slideIn {
+        @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateX(-20px);
+                transform: translateY(-10px);
             }
             to {
                 opacity: 1;
-                transform: translateX(0);
+                transform: translateY(0);
             }
         }
 
         .reminder-item:hover {
-            background: #f0f0f0;
-            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
-        .reminder-item .info {
+        .reminder-info {
             flex: 1;
         }
 
         .reminder-text {
-            font-weight: 500;
-            font-size: 1.1rem;
+            font-size: 1rem;
             color: #333;
+            margin-bottom: 5px;
+            font-weight: 500;
         }
 
-        .reminder-datetime {
+        .reminder-date {
             font-size: 0.8rem;
             color: #888;
-            margin-top: 4px;
+        }
+
+        .reminder-status {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        .status-pending {
+            background: #fff3e0;
+            color: #ff9800;
+        }
+
+        .status-completed {
+            background: #e8f5e9;
+            color: #4CAF50;
+        }
+
+        .status-overdue {
+            background: #ffebee;
+            color: #f44336;
         }
 
         .delete-btn {
-            background: #ff5252;
-            color: white;
+            background: #ffebee;
+            color: #f44336;
             border: none;
-            border-radius: 30px;
             width: 36px;
             height: 36px;
-            font-size: 1.2rem;
+            border-radius: 10px;
             cursor: pointer;
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.2s;
         }
 
         .delete-btn:hover {
-            background: #e03131;
-            transform: scale(1.1);
+            background: #f44336;
+            color: white;
+        }
+
+        .complete-btn {
+            background: #e8f5e9;
+            color: #4CAF50;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            margin-right: 8px;
+            transition: all 0.2s;
+        }
+
+        .complete-btn:hover {
+            background: #4CAF50;
+            color: white;
         }
 
         .empty-state {
             text-align: center;
-            color: #aaa;
-            padding: 40px 20px;
-            font-size: 0.95rem;
+            padding: 60px 20px;
+            color: #999;
         }
 
-        .stats {
-            margin-top: 20px;
-            padding-top: 15px;
+        .info {
+            padding: 15px 20px;
+            background: #f9f9f9;
             border-top: 1px solid #eee;
             text-align: center;
-            color: #888;
             font-size: 0.85rem;
+            color: #666;
         }
 
-        @media (max-width: 500px) {
-            .container {
-                padding: 15px;
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            z-index: 1000;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        @media (max-width: 550px) {
+            .add-form {
+                flex-direction: column;
             }
             
-            .add-form input, .add-form button {
-                font-size: 0.9rem;
+            .reminder-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .reminder-actions {
+                align-self: flex-end;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>
-            <span>📝</span>
-            Напоминания PWA
-        </h1>
-        
+        <header>
+            <h1>🔔 Мои напоминания</h1>
+            <button id="notificationBtn" class="btn-notification">🔔 Разрешить</button>
+        </header>
+
         <div class="add-form">
-            <input type="text" id="reminderText" placeholder="Что нужно сделать?" required>
+            <input type="text" id="reminderText" placeholder="Что нужно сделать?" autocomplete="off">
             <input type="datetime-local" id="reminderDateTime">
             <button id="addBtn">➕ Добавить</button>
         </div>
 
-        <h2>📋 Список напоминаний</h2>
-        <ul id="reminderList"></ul>
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">Все</button>
+            <button class="filter-btn" data-filter="active">Активные</button>
+            <button class="filter-btn" data-filter="completed">Выполненные</button>
+        </div>
+
+        <div id="remindersList" class="reminders-list">
+            <div class="empty-state">📭 Нет напоминаний</div>
+        </div>
         
-        <div class="stats" id="stats">
-            Загрузка...
+        <div class="info">
+            <span id="stats"></span>
         </div>
     </div>
 
-    <script src="script.js"></script>
     <script>
-        // Регистрация Service Worker
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js')
-                .then(reg => console.log('✅ SW registered:', reg))
-                .catch(err => console.log('❌ SW error:', err));
+        // ============ ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ============
+        let reminders = [];
+        let currentFilter = 'all';
+        
+        // ============ ЗАГРУЗКА ПРИ СТАРТЕ ============
+        document.addEventListener('DOMContentLoaded', function() {
+            loadReminders();
+            setupEventListeners();
+            requestNotificationPermission();
+            registerServiceWorker();
+            updateDateTimeMin();
+        });
+        
+        // ============ ЗАГРУЗКА И СОХРАНЕНИЕ ============
+        function loadReminders() {
+            const saved = localStorage.getItem('reminders_pwa');
+            if (saved) {
+                reminders = JSON.parse(saved);
+            } else {
+                // Демо-напоминания для теста
+                reminders = [
+                    {
+                        id: Date.now(),
+                        text: '✅ Попробуй добавить новое напоминание',
+                        datetime: getDefaultDateTime(),
+                        completed: false,
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: Date.now() + 1,
+                        text: '🔔 Нажми на галочку, чтобы отметить выполненным',
+                        datetime: getDefaultDateTime(),
+                        completed: false,
+                        createdAt: new Date().toISOString()
+                    }
+                ];
+                saveReminders();
+            }
+            renderReminders();
         }
+        
+        function getDefaultDateTime() {
+            const now = new Date();
+            now.setHours(now.getHours() + 1);
+            return now.toISOString().slice(0, 16);
+        }
+        
+        function saveReminders() {
+            localStorage.setItem('reminders_pwa', JSON.stringify(reminders));
+            updateStats();
+        }
+        
+        // ============ ОТОБРАЖЕНИЕ СПИСКА ============
+        function renderReminders() {
+            const container = document.getElementById('remindersList');
+            if (!container) return;
+            
+            let filteredReminders = [...reminders];
+            
+            // Фильтрация
+            if (currentFilter === 'active') {
+                filteredReminders = reminders.filter(r => !r.completed);
+            } else if (currentFilter === 'completed') {
+                filteredReminders = reminders.filter(r => r.completed);
+            }
+            
+            // Сортировка: сначала невыполненные, потом по дате
+            filteredReminders.sort((a, b) => {
+                if (a.completed !== b.completed) return a.completed ? 1 : -1;
+                return new Date(a.datetime) - new Date(b.datetime);
+            });
+            
+            if (filteredReminders.length === 0) {
+                container.innerHTML = '<div class="empty-state">📭 Нет напоминаний. Добавьте новое!</div>';
+                return;
+            }
+            
+            container.innerHTML = filteredReminders.map(rem => {
+                const now = new Date();
+                const remDate = new Date(rem.datetime);
+                const isOverdue = !rem.completed && remDate < now;
+                const statusClass = rem.completed ? 'status-completed' : (isOverdue ? 'status-overdue' : 'status-pending');
+                const statusText = rem.completed ? '✓ Выполнено' : (isOverdue ? '⚠ Просрочено' : '○ Ожидает');
+                
+                return `
+                    <div class="reminder-item" data-id="${rem.id}">
+                        <div class="reminder-info">
+                            <div class="reminder-text">${escapeHtml(rem.text)}</div>
+                            <div class="reminder-date">📅 ${formatDateTime(rem.datetime)}</div>
+                            <div class="reminder-status ${statusClass}">${statusText}</div>
+                        </div>
+                        <div class="reminder-actions">
+                            ${!rem.completed ? `<button class="complete-btn" data-id="${rem.id}">✓</button>` : ''}
+                            <button class="delete-btn" data-id="${rem.id}">🗑</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Навешиваем обработчики на динамические кнопки
+            document.querySelectorAll('.complete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const id = parseInt(btn.dataset.id);
+                    toggleComplete(id);
+                });
+            });
+            
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const id = parseInt(btn.dataset.id);
+                    deleteReminder(id);
+                });
+            });
+        }
+        
+        // ============ ДОБАВЛЕНИЕ НАПОМИНАНИЯ (ГЛАВНАЯ ФУНКЦИЯ) ============
+        function addReminder() {
+            const textInput = document.getElementById('reminderText');
+            const datetimeInput = document.getElementById('reminderDateTime');
+            
+            const text = textInput.value.trim();
+            const datetime = datetimeInput.value;
+            
+            // ПРОВЕРКА: текст не пустой
+            if (!text) {
+                showToast('⚠️ Введите текст напоминания');
+                textInput.focus();
+                return false;
+            }
+            
+            // ПРОВЕРКА: дата и время выбраны
+            if (!datetime) {
+                showToast('⚠️ Выберите дату и время');
+                return false;
+            }
+            
+            // Создаем новое напоминание
+            const newReminder = {
+                id: Date.now(),
+                text: text,
+                datetime: datetime,
+                completed: false,
+                createdAt: new Date().toISOString()
+            };
+            
+            reminders.push(newReminder);
+            saveReminders();
+            renderReminders();
+            
+            // Очищаем поля
+            textInput.value = '';
+            datetimeInput.value = getDefaultDateTime();
+            textInput.focus();
+            
+            showToast('✅ Напоминание добавлено!');
+            
+            // Проверяем, нужно ли показать уведомление
+            checkAndSendNotification(newReminder);
+            
+            return true;
+        }
+        
+        // ============ ВЫПОЛНЕНИЕ / ОТМЕНА ============
+        function toggleComplete(id) {
+            const reminder = reminders.find(r => r.id === id);
+            if (reminder) {
+                reminder.completed = !reminder.completed;
+                saveReminders();
+                renderReminders();
+                
+                const message = reminder.completed ? '🎉 Отлично! Напоминание выполнено' : '🔄 Напоминание возвращено';
+                showToast(message);
+                
+                if (reminder.completed) {
+                    sendNotification('Поздравляю!', `Задача "${reminder.text}" выполнена! 🎉`);
+                }
+            }
+        }
+        
+        // ============ УДАЛЕНИЕ ============
+        function deleteReminder(id) {
+            if (confirm('Удалить напоминание?')) {
+                reminders = reminders.filter(r => r.id !== id);
+                saveReminders();
+                renderReminders();
+                showToast('🗑️ Напоминание удалено');
+            }
+        }
+        
+        // ============ ФИЛЬТРАЦИЯ ============
+        function setFilter(filter) {
+            currentFilter = filter;
+            
+            // Обновляем активные кнопки
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                if (btn.dataset.filter === filter) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            renderReminders();
+        }
+        
+        // ============ СТАТИСТИКА ============
+        function updateStats() {
+            const total = reminders.length;
+            const completed = reminders.filter(r => r.completed).length;
+            const active = total - completed;
+            const statsEl = document.getElementById('stats');
+            if (statsEl) {
+                statsEl.textContent = `📊 Всего: ${total} | Активных: ${active} | Выполнено: ${completed}`;
+            }
+        }
+        
+        // ============ ФОРМАТИРОВАНИЕ ДАТЫ ============
+        function formatDateTime(datetimeStr) {
+            if (!datetimeStr) return 'Дата не указана';
+            const date = new Date(datetimeStr);
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            
+            const targetDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+            
+            if (targetDate.getTime() === today.getTime()) {
+                return `Сегодня в ${date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}`;
+            } else if (targetDate.getTime() === tomorrow.getTime()) {
+                return `Завтра в ${date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}`;
+            } else {
+                return date.toLocaleString('ru-RU', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+        }
+        
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+        
+        // ============ УВЕДОМЛЕНИЯ ============
+        function requestNotificationPermission() {
+            if ('Notification' in window) {
+                const btn = document.getElementById('notificationBtn');
+                btn.addEventListener('click', () => {
+                    Notification.requestPermission().then(permission => {
+                        if (permission === 'granted') {
+                            showToast('🔔 Уведомления включены');
+                            btn.textContent = '✅ Уведомления включены';
+                            btn.style.opacity = '0.7';
+                            sendNotification('Добро пожаловать!', 'Уведомления успешно включены');
+                        }
+                    });
+                });
+            }
+        }
+        
+        function sendNotification(title, body) {
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification(title, { body: body });
+            }
+        }
+        
+        function checkAndSendNotification(reminder) {
+            const reminderTime = new Date(reminder.datetime);
+            const now = new Date();
+            const timeDiff = reminderTime - now;
+            
+            // Если время напоминания в ближайшие 5 секунд
+            if (timeDiff > 0 && timeDiff <= 5000) {
+                setTimeout(() => {
+                    sendNotification('🔔 Напоминание', reminder.text);
+                }, timeDiff);
+            }
+        }
+        
+        // Периодическая проверка напоминаний (каждую минуту)
+        setInterval(() => {
+            const now = new Date();
+            reminders.forEach(reminder => {
+                if (!reminder.completed && reminder.datetime) {
+                    const remTime = new Date(reminder.datetime);
+                    const timeDiff = remTime - now;
+                    
+                    // Если время наступило и уведомление ещё не отправлено
+                    if (timeDiff <= 0 && timeDiff > -60000 && !reminder.notified) {
+                        reminder.notified = true;
+                        sendNotification('🔔 Время пришло!', reminder.text);
+                        saveReminders();
+                    }
+                }
+            });
+        }, 30000);
+        
+        // ============ SERVICE WORKER ============
+        function registerServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('✅ SW зарегистрирован:', reg))
+                    .catch(err => console.log('❌ Ошибка SW:', err));
+            }
+        }
+        
+        // ============ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ============
+        function updateDateTimeMin() {
+            const input = document.getElementById('reminderDateTime');
+            if (input) {
+                const now = new Date();
+                now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+                input.min = now.toISOString().slice(0, 16);
+                input.value = getDefaultDateTime();
+            }
+        }
+        
+        function showToast(message) {
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+            
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 2500);
+        }
+        
+        // ============ НАСТРОЙКА ОБРАБОТЧИКОВ ============
+        function setupEventListeners() {
+            // Кнопка добавления
+            const addBtn = document.getElementById('addBtn');
+            if (addBtn) {
+                addBtn.addEventListener('click', addReminder);
+            }
+            
+            // Enter в поле текста
+            const textInput = document.getElementById('reminderText');
+            if (textInput) {
+                textInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        addReminder();
+                    }
+                });
+            }
+            
+            // Кнопки фильтров
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    setFilter(btn.dataset.filter);
+                });
+            });
+        }
+        
+        // Для отладки - выводим в консоль
+        console.log('✅ Приложение загружено, функция addReminder доступна');
     </script>
 </body>
 </html>
