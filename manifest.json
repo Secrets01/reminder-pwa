@@ -1,12 +1,8 @@
 {
-  "short_name": "Reminders",
-  "name": "Мои Напоминания - PWA",
-  "description": "Простое приложение для напоминаний с уведомлениями",
+  "short_name": "Напоминания",
+  "name": "Мои напоминания PWA",
   "start_url": "/",
   "display": "standalone",
   "theme_color": "#4CAF50",
-  "background_color": "#ffffff",
-  "orientation": "portrait",
-  "scope": "/",
-  "categories": ["productivity", "utilities"]
+  "background_color": "#ffffff"
 }
